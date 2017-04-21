@@ -57,6 +57,9 @@ window.POLYDUX = window.POLYDUX || {};
     )
   );
 
+  /**
+    * @polymerMixin
+    */
   const ReduxMixin = PolymerRedux(store);
 
   const MyReduxMixin = Polymer.dedupingMixin(function(superClass){
@@ -64,8 +67,11 @@ window.POLYDUX = window.POLYDUX || {};
 
     /**
      * @polymerElement
+     * @extends POLYDUX.MyElement
+     * @mixes ReduxMixin
+     * @memberof POLYDUX
      */
-    return class MyReduxElement extends ReduxMixin(superClass) {
+    class MyReduxElement extends ReduxMixin(superClass) {
 
 
       // action creators for all redux elements
@@ -85,6 +91,7 @@ window.POLYDUX = window.POLYDUX || {};
 
     }
 
+    return MyReduxElement;
   });
 
 
