@@ -17,6 +17,6 @@
   },
   "globals": {
     "Polymer": true,
-    "POLYSTUFF": true
+    "POLYDUX": true
   }
 }

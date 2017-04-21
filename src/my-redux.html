@@ -8,8 +8,8 @@
 <script src="../node_modules/redux/dist/redux.js"></script>
 
 <script>
-/* global POLYSTUFF */
-window.POLYSTUFF = window.POLYSTUFF || {};
+/* global POLYDUX */
+window.POLYDUX = window.POLYDUX || {};
 
 (function(){
   /* global Redux:false, PolymerRedux:false, Promise:false */
@@ -18,10 +18,10 @@ window.POLYSTUFF = window.POLYSTUFF || {};
   const store = Redux.createStore(
 
     // root reducer
-    POLYSTUFF.reducers.combined,
+    POLYDUX.reducers.combined,
 
     // preloaded state
-    Object.assign({}, POLYSTUFF.reducers.shape, {
+    Object.assign({}, POLYDUX.reducers.shape, {
       meta: { version: -1 },
       user: { displayName: 'anonymous' }
     }),
@@ -91,10 +91,10 @@ window.POLYSTUFF = window.POLYSTUFF || {};
 
 
   /**
-   * exports to POLYSTUFF
+   * exports to POLYDUX
    */
-  POLYSTUFF.store = store;
-  POLYSTUFF.MyReduxElement = MyReduxMixin(POLYSTUFF.MyElement);
+  POLYDUX.store = store;
+  POLYDUX.MyReduxElement = MyReduxMixin(POLYDUX.MyElement);
 
 })();
 </script>

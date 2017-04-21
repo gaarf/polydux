@@ -1,4 +1,4 @@
-POLYSTUFF.reducers.add('user', (state = {}, action) => {
+POLYDUX.reducers.add('user', (state = {}, action) => {
 
   switch (action.type) {
 

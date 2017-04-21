@@ -1,9 +1,9 @@
 {
-  "name": "polystuff",
-  "description": "PolyStuff",
+  "name": "polydux",
+  "description": "PolyDux",
   "version": "0.0.1",
   "license": "UNLICENSED",
-  "repository": "gaarf/polystuff",
+  "repository": "gaarf/polydux",
   "devDependencies": {
     "eslint": "^3.12.0",
     "eslint-config-google": "^0.7.1",

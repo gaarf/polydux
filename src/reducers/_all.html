@@ -1,6 +1,6 @@
 <script>
-/* global POLYSTUFF, Redux:false */
-window.POLYSTUFF = window.POLYSTUFF || {};
+/* global POLYDUX, Redux:false */
+window.POLYDUX = window.POLYDUX || {};
 
 (function () {
   class Reducers {
@@ -29,7 +29,7 @@ window.POLYSTUFF = window.POLYSTUFF || {};
     }
   }
 
-  POLYSTUFF.reducers = new Reducers({
+  POLYDUX.reducers = new Reducers({
 
     meta(state={}, action){
       if(action.type === 'META_UPDATE') {

@@ -138,8 +138,8 @@
   </template>
 
   <script>
-/* global POLYSTUFF */
-window.POLYSTUFF = window.POLYSTUFF || {};
+/* global POLYDUX */
+window.POLYDUX = window.POLYDUX || {};
 
 document.addEventListener('WebComponentsReady', function() {
 
@@ -217,7 +217,7 @@ document.addEventListener('WebComponentsReady', function() {
           var el = this.$.page.selectedItem,
               cb = el.myRenderCallback;
 
-          POLYSTUFF.selectedPage = el;
+          POLYDUX.selectedPage = el;
 
             Polymer.RenderStatus.afterNextRender(el, () => {
               // eslint-disable-next-line no-console
@@ -268,7 +268,7 @@ document.addEventListener('WebComponentsReady', function() {
 
           super.connectedCallback();
 
-          POLYSTUFF.store.dispatch({
+          POLYDUX.store.dispatch({
             type: 'META_UPDATE',
             data
           });

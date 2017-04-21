@@ -1,6 +1,6 @@
 {
-  "name": "polystuff",
-  "short_name": "PolyStuff",
+  "name": "polydux",
+  "short_name": "PolyDux",
   "start_url": "/?homescreen=1",
   "display": "standalone",
   "theme_color": "#3f51b5",

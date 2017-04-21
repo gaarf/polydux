@@ -1,4 +1,4 @@
-POLYSTUFF.reducers.add('counter', (state = {}, action) => {
+POLYDUX.reducers.add('counter', (state = {}, action) => {
   let assign = x => Object.assign({}, state, x);
 
   if(typeof state.number === 'undefined') {

@@ -1,5 +1,6 @@
-# PolyStuff - Starter Kit
+# PolyDux - Starter Kit
 
+Polymer2 + Redux + Server w/Login & API proxy
 ### Setup
 
 ##### Prerequisites
