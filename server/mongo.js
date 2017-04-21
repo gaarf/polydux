@@ -52,7 +52,7 @@ if(!mongoose.connection.readyState) {
   require('fs').readdirSync(__dirname + '/schemas').forEach(function (file) {
     if (file.match(/\.js$/)) {
       var name = file.slice(0, -3);
-      if (DEBUG) { console.info('[mongo] model:', name); }
+      // if (DEBUG) { console.info('[mongo] model:', name); }
       mongoose.model(name, require('./schemas/' + file));
     }
   });

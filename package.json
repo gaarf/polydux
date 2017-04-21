@@ -13,14 +13,14 @@
   "scripts": {
     "lint": "eslint . --ext js,html --ignore-path .gitignore",
     "test": "npm run lint && polymer test",
-
     "repl": "node ops/repl.js --debug=0",
     "create-user": "node ops/createUser.js --debug=0",
-
     "prebuild": "npm install && polymer install",
     "build": "polymer build",
-    "prestart": "node server/express.js --expressPort 8001 &",
-    "start": "polymer serve -p 8088 --proxy-target http://localhost:8001/api --proxy-path /api  -o --open-path /"
+    "express": "node server/express.js --expressPort 8001",
+    "polymer": "polymer serve -p 8088 --proxy-target http://localhost:8001/api --proxy-path /api  -o --open-path /",
+    "start": "npm-run-all -l -p express polymer"
+
   },
   "dependencies": {
     "body-parser": "^1.17.1",
@@ -39,6 +39,7 @@
     "mongoose": "^4.9.4",
     "morgan": "^1.8.1",
     "needle": "^1.6.0",
+    "npm-run-all": "^4.0.2",
     "passport": "^0.3.2",
     "passport-local-mongoose": "^4.0.0",
     "q": "^1.5.0",

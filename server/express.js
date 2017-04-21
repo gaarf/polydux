@@ -22,7 +22,7 @@ Q.when(makeApp()).then(function(app) {
       port = env('expressPort');
 
   server.listen(port, '0.0.0.0', function () {
-    console.info(colors.blue('express listening on port %s'), port);
+    console.info(colors.blue('listening on port %s'), port);
   });
 
 });
@@ -46,7 +46,7 @@ function render404 (req, res) {
 function makeApp () {
 
   var app = express(),
-      log = morgan( colors.blue('express') + colors.gray(' :method :url :ms :status') );
+      log = morgan( ':method :url :ms :status' );
 
   app.engine('html', consolidate.lodash);
   app.set('view engine', 'html');
