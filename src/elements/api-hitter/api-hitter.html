@@ -1,0 +1,219 @@
+<link rel="import" href="../paper-imports.html">
+
+<dom-module id="api-hitter">
+  <template>
+
+    <style>
+
+      :host {
+        display: block;
+      }
+
+      .layout {
+        @apply --layout-horizontal;
+        @apply --layout-end;
+      }
+
+      paper-dropdown-menu {
+        width: 5em;
+        margin-right: 20px;
+      }
+
+      paper-input {
+        @apply --layout-flex;
+      }
+
+      paper-textarea {
+        --paper-input-container-input: {
+          @apply --paper-font-code1;
+        };
+      }
+
+      paper-material {
+        background-color: white;
+        margin: 10px 0;
+        padding: 1px 1em;
+      }
+
+      paper-material[elevation="0"] { /* error */
+        background-color: red;
+        color: white;
+      }
+
+      paper-material pre {
+        @apply --paper-font-code2;
+        white-space: pre-wrap;
+      }
+
+      paper-listbox {
+        cursor: pointer;
+      }
+
+    </style>
+
+    <div class="layout">
+
+      <paper-dropdown-menu
+        label="Method"
+        placeholder="GET"
+      >
+        <paper-listbox
+          id="method"
+          slot="dropdown-content"
+          selected="{{settings.method}}"
+          attr-for-selected="value"
+        >
+          <paper-item value="GET">GET</paper-item>
+          <paper-item value="POST">POST</paper-item>
+          <paper-item value="PUT">PUT</paper-item>
+          <paper-item value="DELETE">DELETE</paper-item>
+        </paper-listbox>
+      </paper-dropdown-menu>
+
+      <paper-input id="url"
+        label="URL"
+        placeholder="/api/endpoint"
+        error-message="Not a valid path/query!"
+        value="{{settings.url}}"
+        invalid="{{settings.invalid}}"
+        pattern="^\/([\w\-]+\/?)*(\?[^\s]*)?$"
+        on-keydown="_checkForEnter"
+        required
+        auto-validate
+        always-float-label
+      ></paper-input>
+
+      <paper-icon-button
+        icon="my-icons:chevron-right"
+        on-tap="_submitForm"
+        disabled$="[[settings.invalid]]"
+      >
+        Submit
+      </paper-icon-button>
+
+    </div>
+
+    <paper-textarea
+      hidden$="[[_isGet(settings.method)]]"
+      required$="[[settings.method]]"
+      error-message="Invalid JSON!"
+      label="Body"
+      value="{{settings.bodystr}}"
+      on-keydown="_checkForEnter"
+      placeholder='{}'
+    ></paper-textarea>
+
+    <iron-ajax id="xhr"
+      content-type="application/json"
+      on-error="_onXhrError"
+      on-response="_onXhrResponse"
+      last-response="{{output}}"
+    ></iron-ajax>
+
+    <div hidden$="[[!output]]">
+      <paper-material
+        elevation$="[[_matElev(isError)]]"
+      >
+        <pre>[[_stringify(output)]]</pre>
+      </paper-material>
+    </div>
+
+  </template>
+</dom-module>
+
+<script>
+  Polymer({
+
+    is: 'api-hitter',
+    properties: {
+      settings: {
+        type: Object,
+        value: function () {
+          return {
+            url: '/api/whoami',
+            method: 'GET',
+            bodystr: this._stringify({foo:'bar'}),
+            invalid: false
+          };
+        }
+      },
+
+      isError: Boolean,
+
+      output: {
+        type: Object,
+        value: function () {
+          return null;
+        }
+      }
+    },
+
+    observers: [
+      '_clearOutput(settings.*)'
+    ],
+
+    _clearOutput: function () {
+      this.set('output', null);
+      this.set('isError', false);
+      this.$.xhr.activeRequests.forEach(function(req) {
+        req.abort();
+      });
+    },
+
+    _isGet: function (method) {
+      return !method || method === 'GET';
+    },
+
+    _matElev: function (isError) {
+      return isError ? 0 : 2;
+    },
+
+    _onXhrResponse: function (e, d) {
+      if(!d.response) {
+        this.set('isError', true);
+        this.set('output', 'Not JSON, HTTP '+d.xhr.status);
+      }
+    },
+
+    _onXhrError: function (e, d) {
+      this.set('isError', true);
+      this.set('output', d.request.xhr.response || d.error.message || 'error');
+    },
+
+    _checkForEnter: function (e) {
+      if( !this.get('settings.invalid')
+       && (e.target.tagName!=='TEXTAREA' || e.metaKey)
+       && (e.keyCode === 13)
+      ) {
+        this.$$('paper-icon-button').getRipple().simulatedRipple();
+        this._submitForm();
+      }
+    },
+
+    _submitForm: function () {
+      var s = this.get('settings'),
+          t = this.$$('paper-textarea'),
+          x = this.$.xhr;
+
+      t.set('invalid', false);
+      x.set('body', '');
+
+      if(s.method && s.bodystr) {
+        try { x.set('body', JSON.parse(s.bodystr)); }
+        catch(e) { return t.set('invalid', true); }
+      }
+
+      x.set('method', this.$.method.selected);
+      x.set('url', s.url);
+
+      x.generateRequest();
+    },
+
+
+    _stringify: function (it) {
+      return JSON.stringify(it, null, 2);
+    }
+
+  });
+
+</script>

@@ -1,0 +1,154 @@
+<link rel="import" href="my-redux.html">
+
+<dom-module id="my-user">
+  <template>
+
+    <style>
+      :host([debug]) pre {
+        display: block;
+        background-color: whitesmoke;
+        border-radius: 5px;
+        border: 1px solid darkgray;
+        padding: 10px;
+      }
+
+      pre::before {
+        content: attr(title) ' = ';
+      }
+    </style>
+
+    <template is="dom-if" if="[[debug]]">
+      <pre title="user">[[_str(data)]]</pre>
+      <pre title="can">[[_str(can)]]</pre>
+    </template>
+
+  </template>
+</dom-module>
+
+<script>
+  (function(){
+    /* global POLYSTUFF:false */
+
+    var identifying = false; // keeps track of api fetch in progress
+
+    class MyUser extends POLYSTUFF.MyReduxElement {
+
+      static get is() { return 'my-user'; }
+
+      static get properties() {
+        return {
+
+          data: {
+            type: Object,
+            notify: true,
+            readOnly: true,
+            statePath: 'user'
+          },
+
+          debug: { // only when true, is a visible element
+            type: Boolean,
+            reflectToAttribute: true
+          },
+
+          can: {
+            type: Object,
+            notify: true,
+            readOnly: true,
+            computed: '_computePermsObj(data.permissions)'
+          }
+
+
+        };
+      }
+
+
+      _computePermsObj(perms) {
+        return (perms||[]).reduce(function(out, v){
+          var s = v.split(':'), ref = out;
+          for (var i = 0, m = s.length-1; i <= m; i++) {
+            if(i===m) { ref[s[i]] = true; }
+            else { ref[s[i]] = ref[s[i]] || {}; }
+            ref = ref[s[i]];
+          }
+          return out;
+        }, {});
+      }
+
+
+      static get actions() {
+        return {
+
+          whoami(data) {
+            return {
+              type: 'USER_WHOAMI',
+              data
+            };
+          }
+
+        };
+      }
+
+
+
+
+      connectedCallback() {
+        super.connectedCallback();
+
+        if(!identifying && 'undefined' === typeof this.get('data.loggedIn')) {
+          this.identify();
+        }
+      }
+
+
+      identify() {
+        this.dispatch('updateMessage', 'Loading identity...');
+        identifying = true;
+
+        this.jsonFetch('/api/whoami')
+          .then(result => {
+
+            this.dispatch('whoami', result);
+            identifying = false;
+
+            if(result.loggedIn) {
+              setTimeout(this.sayHello.bind(this), 1000);
+            }
+          });
+      }
+
+
+      sayHello() {
+        this.dispatch('updateMessage', `Hello ${this.data.displayName}!`);
+      }
+
+      login(credentials) {
+        return this.jsonFetch('/api/login', 'POST', credentials)
+          .then(result => {
+            this.dispatch('whoami', result);
+            this.sayHello();
+          })
+          .catch(error => {
+            let {status, statusText} = error;
+            this.dispatch('updateMessage', `Login ${status} ${statusText}`);
+          });
+      }
+
+      logout() {
+        return this.jsonFetch('/api/login', 'DELETE')
+          .then(result => {
+            this.dispatch('whoami', result);
+            this.dispatch('updateMessage', 'Goodbye!');
+          })
+          .catch(error => {
+            let {status, statusText} = error;
+            this.dispatch('updateMessage', `Logout ${status} ${statusText}`);
+          });
+
+      }
+    }
+
+
+    window.customElements.define(MyUser.is, MyUser);
+
+  })();
+</script>

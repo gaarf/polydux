@@ -1,0 +1,286 @@
+<link rel="import" href="../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../bower_components/polymer/lib/utils/render-status.html">
+<link rel="import" href="../bower_components/app-layout/app-drawer/app-drawer.html">
+<link rel="import" href="../bower_components/app-layout/app-drawer-layout/app-drawer-layout.html">
+<link rel="import" href="../bower_components/app-layout/app-header/app-header.html">
+<link rel="import" href="../bower_components/app-layout/app-header-layout/app-header-layout.html">
+<link rel="import" href="../bower_components/app-layout/app-scroll-effects/app-scroll-effects.html">
+<link rel="import" href="../bower_components/app-layout/app-toolbar/app-toolbar.html">
+<link rel="import" href="../bower_components/app-route/app-location.html">
+<link rel="import" href="../bower_components/app-route/app-route.html">
+<link rel="import" href="../bower_components/iron-pages/iron-pages.html">
+<link rel="import" href="../bower_components/iron-selector/iron-selector.html">
+<link rel="import" href="../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../bower_components/paper-toast/paper-toast.html">
+<link rel="import" href="my-icons.html">
+<link rel="import" href="my-user.html">
+
+<dom-module id="my-app">
+  <template>
+    <style>
+      :host {
+        --app-primary-color: #3f51b5;
+        --app-secondary-color: black;
+
+        display: block;
+      }
+
+      app-drawer-layout:not([narrow]) [drawer-toggle] {
+        display: none;
+      }
+
+      app-header {
+        color: #fff;
+        background-color: var(--app-primary-color);
+      }
+
+      app-header paper-icon-button {
+        --paper-icon-button-ink-color: white;
+      }
+
+      .drawer-list {
+        margin: 0 20px;
+      }
+
+      .drawer-list a {
+        display: block;
+        padding: 0 16px;
+        text-decoration: none;
+        color: var(--app-secondary-color);
+        line-height: 40px;
+      }
+
+      .drawer-list a.iron-selected {
+        color: black;
+        font-weight: bold;
+      }
+    </style>
+
+    <app-location route="{{route}}"></app-location>
+    <app-route
+        route="{{route}}"
+        pattern="/:page"
+        data="{{routeData}}"
+        tail="{{subroute}}"
+    ></app-route>
+
+    <app-drawer-layout fullbleed>
+      <!-- Drawer content -->
+      <app-drawer id="drawer" slot="drawer">
+        <app-toolbar>Menu</app-toolbar>
+        <iron-selector selected="[[page]]" attr-for-selected="name" class="drawer-list" role="navigation">
+
+          <a name="view1" href="/view1">View One</a>
+
+          <a name="view2" href="/view2">View Two</a>
+
+          <a name="login" href="/login">Login</a>
+
+          <a name="hitme" href="/hitme/api/placehold/posts">API hitter</a>
+
+          <a href="/somewhere">Somewhere?</a>
+        </iron-selector>
+
+       </app-drawer>
+
+      <!-- Main content -->
+      <app-header-layout has-scrolling-region>
+
+        <app-header slot="header" condenses reveals effects="waterfall">
+          <app-toolbar>
+            <paper-icon-button icon="my-icons:menu" drawer-toggle></paper-icon-button>
+            <div main-title>[[title]]</div>
+          </app-toolbar>
+        </app-header>
+
+        <iron-pages id="page"
+          selected="[[page]]"
+          attr-for-selected="name"
+          fallback-selection="404"
+          role="main"
+        >
+
+
+          <x-page-view1
+            name="view1"
+          ></x-page-view1>
+
+          <x-page-view2
+            name="view2"
+          ></x-page-view2>
+
+          <x-page-apihit
+            name="hitme"
+            subroute="[[subroute]]"
+          ></x-page-apihit>
+
+          <x-page-login
+            name="login"
+          ></x-page-login>
+
+          <x-page-404
+            name="404"
+          ></x-page-404>
+
+        </iron-pages>
+      </app-header-layout>
+    </app-drawer-layout>
+
+    <my-user
+      data="{{user}}"
+    ></my-user>
+
+    <paper-toast
+      id="toast"
+      text="[[user.message]]"
+    ></paper-toast>
+
+  </template>
+
+  <script>
+/* global POLYSTUFF */
+window.POLYSTUFF = window.POLYSTUFF || {};
+
+document.addEventListener('WebComponentsReady', function() {
+
+  class MyApp extends Polymer.Element {
+
+    static get is() { return 'my-app'; }
+
+    static get properties() {
+      return {
+        page: {
+          type: String,
+          reflectToAttribute: true,
+          observer: '_pageChanged',
+        },
+
+        title: {
+          type: String,
+          computed: '_computeTitle(page, meta)',
+          observer: '_titleChanged'
+        },
+
+
+        user: {
+          type: Object
+        },
+
+        meta: {
+          type: Object
+        },
+
+        routeData: {
+          type: Object
+        },
+
+        subroute: {
+          type: Object
+        }
+
+      };
+    }
+
+    static get observers() {
+      return [
+        '_routePageChanged(routeData.page)',
+        '_showToast(user.message)'
+      ];
+    }
+
+    _routePageChanged(page) {
+      // Polymer 2.0 will call with `undefined` on initialization.
+      // Ignore until we are properly called with a string.
+      if (page === undefined) {
+        return;
+      }
+
+      // If no page was found in the route data, page will be an empty string.
+      this.page = page || 'hitme';
+
+      // Close a non-persistent drawer when the page & route are changed.
+      if (!this.$.drawer.persistent) {
+        this.$.drawer.close();
+      }
+    }
+
+    _pageChanged(page) {
+      page = {
+
+        hitme: 'apihit'
+
+      }[page] || page;
+
+      // Load page import on demand. Show 404 page if fails
+      Polymer.importHref( this.resolveUrl(`fragments/x-page-${page}.html`),
+        () => {
+          var el = this.$.page.selectedItem,
+              cb = el.myRenderCallback;
+
+          POLYSTUFF.selectedPage = el;
+
+            Polymer.RenderStatus.afterNextRender(el, () => {
+              // eslint-disable-next-line no-console
+              console.info(page, el);
+
+              if(cb) { // myRenderCallback, we call it after navigation to and render of a page
+                cb.call(el, this, page);
+              }
+            });
+
+
+        },
+        () => this._showPage404(),
+        true // async option
+      );
+
+    }
+
+    _showPage404() {
+      this.page = '404';
+    }
+
+
+    _computeTitle(page) {
+      return {
+
+        hitme: 'API Hitter'
+
+      }[page] || this.get('meta.title');
+    }
+
+    _titleChanged(title) {
+      document.title = title;
+    }
+
+    _showToast() {
+      this.$.toast.open();
+    }
+
+    connectedCallback() {
+      window.fetch('/api/meta', {method: 'GET'})
+        .then(result => result.json())
+        .then(data => {
+          this.set('meta', data);
+
+          // eslint-disable-next-line no-console
+          console.info(data.title);
+
+          super.connectedCallback();
+
+          POLYSTUFF.store.dispatch({
+            type: 'META_UPDATE',
+            data
+          });
+        });
+
+    }
+
+  }
+
+  window.customElements.define(MyApp.is, MyApp);
+
+});
+
+  </script>
+</dom-module>

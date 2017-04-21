@@ -1,0 +1,50 @@
+<link rel="import" href="../../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../elements/api-hitter/api-hitter.html">
+
+<dom-module id="x-page-apihit">
+  <template>
+    <style>
+      :host {
+        display: block;
+        padding: 15px;
+      }
+    </style>
+
+    <api-hitter id="hit"></api-hitter>
+
+  </template>
+
+  <script>
+(function(){
+
+    class XPageApihit extends Polymer.Element {
+      static get is() { return 'x-page-apihit'; }
+
+      static get properties() {
+        return {
+          subroute: {
+            type: Object,
+            observer: '_observeSubroute'
+          }
+        };
+      }
+
+
+      // myRenderCallback() {
+      //   this.$.hit._clearOutput();
+      // }
+
+      _observeSubroute(route) {
+        var path = route.path;
+        if(path) {
+          this.$.hit.set('settings.url', path);
+        }
+      }
+
+    }
+
+    window.customElements.define(XPageApihit.is, XPageApihit);
+
+})();
+  </script>
+</dom-module>

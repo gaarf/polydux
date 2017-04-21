@@ -1,0 +1,144 @@
+<link rel="import" href="../my-redux.html">
+<link rel="import" href="../../bower_components/iron-flex-layout/iron-flex-layout-classes.html">
+<link rel="import" href="../../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../../bower_components/paper-input/paper-input.html">
+
+<dom-module id="x-page-login">
+  <template>
+    <style include="iron-flex iron-positioning">
+      :host {
+        display: block;
+        padding: 15px;
+      }
+
+      paper-input[type="password"] {
+        margin-left: 1em;
+      }
+    </style>
+
+
+    <div hidden$="[[!user.loggedIn]]">
+      <h1>You are logged in!</h1>
+      <p>
+        <a href="#" on-tap="_doLogout">
+          <iron-icon icon="my-icons:close"></iron-icon>Log out
+        </a>
+      </p>
+
+    </div>
+
+    <div hidden$="[[user.loggedIn]]">
+
+      <h1>Login</h1>
+
+
+      <div class="layout horizontal center">
+        <div class="flex">
+          <paper-input label="Email"
+            value="{{cred.email}}"
+            on-keydown="_onKeydown"
+            disabled$="[[_submitting]]"
+          ></paper-input>
+        </div>
+        <div class="flex">
+          <paper-input label="Password"
+            type="password"
+            on-keydown="_onKeydown"
+            value="{{cred.password}}"
+            disabled$="[[_submitting]]"
+          ></paper-input>
+        </div>
+        <div class="layout inline">
+          <paper-icon-button
+            icon="my-icons:chevron-right"
+            disabled$="[[_submitting]]"
+            on-tap="_doLogin"
+          ></paper-icon-button>
+        </div>
+      </div>
+
+    </div>
+
+
+    <my-user id="user" debug
+      data="{{user}}"
+      perms="{{perms}}"
+    ></my-user>
+
+  </template>
+
+  <script>
+(function(){
+    /* global POLYSTUFF:false */
+
+    class XPageLogin extends POLYSTUFF.MyElement {
+      static get is() { return 'x-page-login'; }
+
+      static get properties() {
+        return {
+          cred: {
+            type: Object,
+            value() {
+              return {
+                email: '',
+                password: ''
+              };
+            }
+          },
+
+          user: {
+            type: Object
+          },
+
+          perms: {
+            type: Object
+          },
+
+          _submitting: {
+            type: Boolean,
+            value: false
+          }
+
+        };
+      }
+
+
+      myRenderCallback() {
+        this.focusInput();
+      }
+
+      focusInput() {
+        var f = this.root.querySelector('paper-input');
+        if(f) {
+          f.focus();
+        }
+      }
+
+      _onKeydown(e) {
+        if(e.key === 'Enter') {
+          e.preventDefault();
+          this._doLogin();
+        }
+      }
+
+      _doLogin() {
+        this.set('_submitting', true);
+
+        this.$.user.login(this.cred)
+          .then(() => {
+            this.set('_submitting', false);
+            this.focusInput();
+          });
+      }
+
+      _doLogout() {
+        this.$.user.logout();
+      }
+
+    }
+
+    window.customElements.define(XPageLogin.is, XPageLogin);
+
+})();
+  </script>
+</dom-module>

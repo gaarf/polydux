@@ -1,0 +1,37 @@
+{
+  "entrypoint": "index.html",
+  "shell": "src/my-app.html",
+  "fragments": [
+    "src/fragments/x-page-view1.html",
+    "src/fragments/x-page-view2.html",
+    "src/fragments/x-page-login.html",
+    "src/fragments/x-page-apihit.html",
+    "src/fragments/x-page-404.html"
+  ],
+  "sources": [
+    "src/**/*",
+    "images/**/*",
+    "bower.json"
+  ],
+  "extraDependencies": [
+    "manifest.json",
+    "node_modules/redux/dist/redux.js",
+    "bower_components/webcomponentsjs/*.js"
+  ],
+  "lint": {
+    "rules": ["polymer-2-hybrid"]
+  },
+
+  "builds": [
+    { "name": "default" },
+    { "name": "bundled",
+      "bundle": true,
+      "addServiceWorker": true,
+      "swPrecacheConfig": "sw-precache-config.js",
+      "js": { "compile": true, "minify": true },
+      "css": { "minify": true },
+      "html": { "minify": true }
+    }
+  ]
+
+}

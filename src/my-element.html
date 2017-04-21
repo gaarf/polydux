@@ -1,0 +1,64 @@
+<link rel="import" href="../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../bower_components/polymer/lib/mixins/gesture-event-listeners.html">
+
+
+<script>
+/* global POLYSTUFF */
+window.POLYSTUFF = window.POLYSTUFF || {};
+
+(function(){
+  /* eslint-disable no-console, new-cap */
+
+
+  /**
+   * @polymerElement
+   */
+  class MyElement extends Polymer.GestureEventListeners(Polymer.Element) {
+
+    // connectedCallback() {
+    //   super.connectedCallback();
+    //   console.log('connect', this.tagName);
+    // }
+
+    _str() {
+      return Array.prototype.map.call(arguments, one => {
+        return JSON.stringify(one, null, 2);
+      }).join('\n\n');
+    }
+
+
+    jsonFetch(url, method, body) {
+      let opts = {
+        method: method || 'GET',
+        credentials: 'same-origin'
+      };
+
+      if (body) {
+        Object.assign(opts, {
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(body)
+        });
+      }
+
+      return window.fetch(url, opts).then(
+        result => {
+          if(!result.ok) {
+            throw result;
+          }
+          return result.json();
+        }
+      );
+    }
+  }
+
+
+
+  /**
+   * exports to POLYSTUFF
+   */
+  POLYSTUFF.MyElement = MyElement;
+
+})();
+</script>

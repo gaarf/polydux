@@ -1,0 +1,100 @@
+<link rel="import" href="../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../bower_components/polymer/lib/utils/mixin.html">
+<link rel="import" href="./my-element.html">
+
+<link rel="import" href="../bower_components/polymer-redux/polymer-redux.html">
+<link rel="import" href="reducers/_all.html">
+
+<script src="../node_modules/redux/dist/redux.js"></script>
+
+<script>
+/* global POLYSTUFF */
+window.POLYSTUFF = window.POLYSTUFF || {};
+
+(function(){
+  /* global Redux:false, PolymerRedux:false, Promise:false */
+  /* eslint-disable no-console, new-cap */
+
+  const store = Redux.createStore(
+
+    // root reducer
+    POLYSTUFF.reducers.combined,
+
+    // preloaded state
+    Object.assign({}, POLYSTUFF.reducers.shape, {
+      meta: { version: -1 },
+      user: { displayName: 'anonymous' }
+    }),
+
+    // enhancers
+    Redux.applyMiddleware(
+
+      // thunk
+      (s) => next => action => {
+        typeof action === 'function' ?
+          action(s.dispatch, s.getState) :
+          next(action);
+      },
+
+      // promise
+      (s) => next => action => {
+        if (typeof action.then !== 'function') {
+          return next(action)
+        }
+        return Promise.resolve(action).then(s.dispatch);
+      },
+
+      // logger
+      () => next => action => {
+        console.groupCollapsed(action.type);
+        console.info('dispatching', action);
+        let result = next(action);
+        console.log('next state', store.getState());
+        console.groupEnd(action.type);
+        return result;
+      }
+
+    )
+  );
+
+  const ReduxMixin = PolymerRedux(store);
+
+  const MyReduxMixin = Polymer.dedupingMixin(function(superClass){
+
+
+    /**
+     * @polymerElement
+     */
+    return class MyReduxElement extends ReduxMixin(superClass) {
+
+
+      // action creators for all redux elements
+      static get actions() {
+        return {
+
+          updateMessage(message) {
+            return {
+              type: 'UPDATE_MESSAGE',
+              message
+            };
+          }
+
+
+        };
+      }
+
+    }
+
+  });
+
+
+
+
+  /**
+   * exports to POLYSTUFF
+   */
+  POLYSTUFF.store = store;
+  POLYSTUFF.MyReduxElement = MyReduxMixin(POLYSTUFF.MyElement);
+
+})();
+</script>
