@@ -21,7 +21,8 @@ if (TEST) {
  * supress a logged warning from mongoose npm pkg saying that their mpromise is deprecated.
  * cf http://mongoosejs.com/docs/promises.html Plugging in your own Promises Library
  */
-mongoose.Promise = require('q').Promise;
+var Promise = require('q').Promise
+mongoose.Promise = Promise;
 
 
 
@@ -49,11 +50,43 @@ if(!mongoose.connection.readyState) {
     process.exit(1);
   });
 
+
+  let modelsWithSeeds = [];
+
   require('fs').readdirSync(__dirname + '/schemas').forEach(function (file) {
     if (file.match(/\.js$/)) {
-      var name = file.slice(0, -3);
-      // if (DEBUG) { console.info('[mongo] model:', name); }
-      mongoose.model(name, require('./schemas/' + file));
+      var name = file.slice(0, -3),
+          Model = mongoose.model(name, require('./schemas/' + file));
+
+      if('function' === typeof Model.seeds) {
+        modelsWithSeeds.push( Model );
+        name += ' (seeded)';
+      }
+
+      if (DEBUG) {
+        console.info('[mongo] model:', name);
+      }
+    }
+  });
+
+
+  mongoose.connection.once('connected', function () {
+
+    let seedings = modelsWithSeeds.map((Model) => {
+      return Model.seeds().then( (seeds) => {
+        return Promise.all(seeds.map( (seed) => {
+          return Model.findOne(seed).then((doc) => {
+            return doc ? null : Model.create(seed);
+          });
+        }));
+      });
+    });
+
+    if (DEBUG) {
+      Promise.all(seedings).then((result) => {
+        var count = result.reduce( (a, v) => a + v.filter( q => !!q ).length, 0 );
+        console.info(`[mongo] created ${count} documents from ${seedings.length} seeded models`);
+      });
     }
   });
 

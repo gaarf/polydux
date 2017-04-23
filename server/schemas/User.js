@@ -226,4 +226,10 @@ userSchema
     }
   });
 
+userSchema.statics.seeds = () => Promise.all([
+  { name: {first:'foo', last:'bar'}, email: 'foo3@polydux.example' }
+]);
+
+
+
 module.exports = userSchema;

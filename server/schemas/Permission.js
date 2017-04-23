@@ -18,4 +18,9 @@ var permissionSchema = new Schema({
 
 });
 
+permissionSchema.statics.seeds = () => Promise.all([
+  { name: 'whatever:test2' },
+  { name: 'placehold:view' }
+]);
+
 module.exports = permissionSchema;
