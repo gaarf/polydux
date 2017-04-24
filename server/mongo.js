@@ -72,22 +72,17 @@ if(!mongoose.connection.readyState) {
 
   mongoose.connection.once('connected', function () {
 
-    let seedings = modelsWithSeeds.map((Model) => {
-      return Model.seeds().then( (seeds) => {
-        return Promise.all(seeds.map( (seed) => {
-          return Model.findOne(seed).then((doc) => {
-            return doc ? null : Model.create(seed);
+    modelsWithSeeds.forEach( Model => {
+      Model.seeds()
+        .then( seeds => Promise.all(seeds.map( seed => {
+          return Model.findOne(seed);
+        })))
+        .then( models => {
+          models.forEach( doc => {
+            if(!doc) { Model.create(seed); }
           });
-        }));
-      });
+        });
     });
-
-    if (DEBUG) {
-      Promise.all(seedings).then((result) => {
-        var count = result.reduce( (a, v) => a + v.filter( q => !!q ).length, 0 );
-        console.info(`[mongo] created ${count} documents from ${seedings.length} seeded models`);
-      });
-    }
   });
 
 }
