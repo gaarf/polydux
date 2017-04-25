@@ -102,8 +102,9 @@ window.POLYDUX = window.POLYDUX || {};
             this.dispatch('fetchCount');
             return result;
           },
-          () => {
+          error => {
             this.dispatch('fetchCount');
+            throw error;
           }
         );
       }
