@@ -1,0 +1,51 @@
+<link rel="import" href="my-redux.html">
+<link rel="import" href="../bower_components/paper-spinner/paper-spinner.html">
+
+<dom-module id="my-spinner">
+  <template>
+
+    <style>
+
+      :host {
+        height: 28px;
+        width: 28px;
+        display: inline-flex;
+        overflow: hidden;
+      }
+
+    </style>
+
+    <paper-spinner active="[[active]]"></paper-spinner>
+
+  </template>
+</dom-module>
+
+<script>
+  (function(){
+
+    class MySpinner extends POLYDUX.MyReduxElement {
+
+      static get is() { return 'my-spinner'; }
+
+      static get properties() {
+        return {
+
+          active: {
+            type: Boolean,
+            notify: true,
+            readOnly: true,
+            reflectToAttribute: true,
+            statePath: 'fetch.loading'
+          }
+
+        };
+      }
+
+
+    }
+
+
+    window.customElements.define(MySpinner.is, MySpinner);
+
+  })();
+</script>
