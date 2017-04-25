@@ -227,7 +227,7 @@ userSchema
   });
 
 userSchema.statics.seeds = function() {
-  const USERS = [
+  const SEEDS = [
     [ 'foo bar', 'foo11@polydux.example', 'Fooo1234']
   ];
 
@@ -237,12 +237,12 @@ userSchema.statics.seeds = function() {
     let done = 0;
 
     function maybeResolve() {
-      if(++done === USERS.length) {
+      if(++done === SEEDS.length) {
         resolve([]);
       }
     }
 
-    USERS.forEach(([name, email, pass]) => {
+    SEEDS.forEach(([name, email, pass]) => {
       User.findOne({email}).then(u => {
         if(u) {
           maybeResolve();
