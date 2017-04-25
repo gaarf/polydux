@@ -2,7 +2,7 @@ POLYDUX.reducers.add('user', (state = {}, action) => {
 
   switch (action.type) {
 
-    case 'UPDATE_MESSAGE':
+    case 'USER_MESSAGE':
       return Object.assign({}, state, {
         message: action.message || ''
       });

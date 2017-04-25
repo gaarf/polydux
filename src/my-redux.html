@@ -80,13 +80,32 @@ window.POLYDUX = window.POLYDUX || {};
 
           updateMessage(message) {
             return {
-              type: 'UPDATE_MESSAGE',
+              type: 'USER_MESSAGE',
               message
+            };
+          },
+
+          fetchCount(s) {
+            return {
+              type: `FETCH_${s?'IN':'DE'}CREMENT`
             };
           }
 
 
         };
+      }
+
+      jsonFetch(url, method, body) {
+        this.dispatch('fetchCount', true);
+        return super.jsonFetch(url, method, body).then(
+          result => {
+            this.dispatch('fetchCount');
+            return result;
+          },
+          () => {
+            this.dispatch('fetchCount');
+          }
+        );
       }
 
     }
