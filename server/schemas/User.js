@@ -227,24 +227,39 @@ userSchema
   });
 
 userSchema.statics.seeds = function() {
-  var User = this;
+  const USERS = [
+    [ 'foo bar', 'foo11@polydux.example', 'Fooo1234']
+  ];
+
+  let User = this;
 
   return new Promise((resolve, reject) => {
-    [
+    let done = 0;
 
-      // [ {name, email}, password ]
-      [{ name: {first:'foo', last:'bar'}, email: 'foo5@polydux.example' }, 'Fooo1234']
+    function maybeResolve() {
+      if(++done === USERS.length) {
+        resolve([]);
+      }
+    }
 
-    ].forEach(([seed, pass]) => {
-      User.findOne({email: seed.email}).then(u => {
-        if(!u) {
-          u = new User(seed);
-          u.setPassword(pass, () => u.save());
+    USERS.forEach(([name, email, pass]) => {
+      User.findOne({email}).then(u => {
+        if(u) {
+          maybeResolve();
+        } else {
+          let [first, last] = name.split(' ');
+          u = new User({
+            email,
+            name: { first, last }
+          });
+          u.setPassword(pass, () => u.save().then(
+            maybeResolve,
+            reject
+          ));
         }
       });
     });
 
-    resolve([]);
   });
 };
 
