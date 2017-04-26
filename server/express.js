@@ -64,15 +64,21 @@ function makeApp () {
     }
   ]);
 
-  // serve the api
-  app.use('/api', [
+
+  app.use('/api/foo', [
     log,
-    require('./api/index.js'),
     function (req, res, next) {
       var d = parseInt(req.query.delay, 10);
       if(d>0) { setTimeout(next, Math.min(d,10) * 1000); }
       else next();
     },
+    render404
+  ]);
+
+  // serve the api
+  app.use('/api', [
+    log,
+    require('./api/index.js'),
     render404
   ]);
 
