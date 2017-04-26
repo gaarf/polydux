@@ -228,7 +228,7 @@ userSchema
 
 userSchema.statics.seeds = function() {
   const SEEDS = [
-    [ 'foo bar', 'foo11@polydux.example', 'Fooo1234']
+    [ 'foo bar', 'foo@polydux.example', 'Fooo1234']
   ];
 
   let User = this;

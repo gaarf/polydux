@@ -73,9 +73,9 @@ if(!mongoose.connection.readyState) {
   mongoose.connection.once('connected', function () {
 
     modelsWithSeeds.forEach( Model => {
-      Model.seeds()
-        .then( seeds => Promise.all( seeds.map( seed => Model.findOne(seed) ) ))
-        .then( models => models.forEach( doc => doc || Model.create(doc) ) );
+      Model.seeds().then( seeds => Promise.all(seeds.map( seed => {
+        return Model.findOne(seed).then( o => o || Model.create(seed));
+      })));
     });
   });
 

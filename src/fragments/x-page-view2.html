@@ -13,17 +13,15 @@
     </style>
 
     <div class="card">
-      <div class="circle">[[counter]]</div>
+      <div class="circle">2</div>
       <h1>View Two</h1>
       <p>Modus commodo minimum eum te, vero utinam assueverit per eu.</p>
       <p>Ea duis bonorum nec, falli paulo aliquid ei eum.Has at minim mucius aliquam, est id tempor laoreet.Pro saepe pertinax ei, ad pri animal labores suscipiantur.</p>
 
+      <pre>[[_str(fetchState)]]</pre>
 
-      <p>
-        <paper-button raised on-tap="_btnTap">decrement</paper-button>
-        <paper-button raised on-tap="_btnTap">increment</paper-button>
-      </p>
 
+      <paper-button raised on-tap="_btnTap">slow jsonFetch</paper-button>
     </div>
   </template>
 
@@ -32,27 +30,20 @@
 
     class XPageView2 extends POLYDUX.MyReduxElement {
       static get is() { return 'x-page-view2'; }
-      static get actions() {
-        return {
-          changeCount(d) {
-            return {
-              type: 'COUNTER_' + (d ? 'DECREMENT' : 'INCREMENT')
-            }
-          }
-        };
-      }
 
       static get properties() {
         return {
-          counter: {
-            type: Number,
-            statePath: 'counter.number'
+          fetchState: {
+            type: Object,
+            statePath: 'fetch'
           }
         };
       }
 
-      _btnTap(e) {
-        this.dispatch('changeCount', e.target.textContent==='decrement');
+      _btnTap() {
+        this.jsonFetch(`/api/foo/${Date.now()}?delay=3`).catch(err => {
+          this.dispatch('updateMessage', err.message);
+        });
       }
     }
 
