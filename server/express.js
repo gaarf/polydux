@@ -56,12 +56,6 @@ function makeApp () {
   // middleware stack starts here
   app.use(compression());
 
-  app.use(function (req, res, next) {
-    var d = parseInt(req.query.delay, 10);
-    if(d>0) { setTimeout(next, Math.min(d,10) * 1000); }
-    else next();
-  });
-
   app.get('/robots.txt', [
     log,
     function (req, res) {
@@ -74,6 +68,11 @@ function makeApp () {
   app.use('/api', [
     log,
     require('./api/index.js'),
+    function (req, res, next) {
+      var d = parseInt(req.query.delay, 10);
+      if(d>0) { setTimeout(next, Math.min(d,10) * 1000); }
+      else next();
+    },
     render404
   ]);
 

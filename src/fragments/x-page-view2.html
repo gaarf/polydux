@@ -18,10 +18,10 @@
       <p>Modus commodo minimum eum te, vero utinam assueverit per eu.</p>
       <p>Ea duis bonorum nec, falli paulo aliquid ei eum.Has at minim mucius aliquam, est id tempor laoreet.Pro saepe pertinax ei, ad pri animal labores suscipiantur.</p>
 
-      <pre>[[_str(fetchState)]]</div>
+      <pre>[[_str(fetchState)]]</pre>
 
 
-      <paper-button raised on-tap="_btnTap">trigger jsonFetch</paper-button>
+      <paper-button raised on-tap="_btnTap">slow jsonFetch</paper-button>
     </div>
   </template>
 
@@ -41,7 +41,9 @@
       }
 
       _btnTap() {
-        this.jsonFetch('/api/foo/bar?delay=3&ts='+Date.now());
+        this.jsonFetch(`/api/foo/${Date.now()}?delay=3`).catch(err => {
+          this.dispatch('updateMessage', err.message);
+        });
       }
     }
 

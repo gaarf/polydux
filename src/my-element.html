@@ -45,14 +45,14 @@ window.POLYDUX = window.POLYDUX || {};
         });
       }
 
-      return window.fetch(url, opts).then(
-        result => {
-          if(!result.ok) {
-            throw result;
-          }
-          return result.json();
+      return window.fetch(url, opts).then(result => {
+        if(!result.ok) {
+          throw new Error(`${opts.method} ${url} yielded ${result.status} ${result.statusText}`);
         }
-      );
+        return result.json().catch(e => {
+          console.error(e, result);
+        });
+      });
     }
   }
 
