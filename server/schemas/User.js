@@ -248,13 +248,9 @@ userSchema.statics.seeds = function() {
           maybeResolve();
         } else {
           let [first, last] = name.split(' ');
-          u = new User({
-            email,
-            name: { first, last }
-          });
+          u = new User({ email, name: { first, last } });
           u.setPassword(pass, () => u.save().then(
-            maybeResolve,
-            reject
+            maybeResolve, reject
           ));
         }
       });
