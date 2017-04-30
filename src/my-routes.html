@@ -1,0 +1,101 @@
+<link rel="import" href="../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../bower_components/iron-pages/iron-pages.html">
+
+<dom-module id="my-routes">
+  <template>
+
+    <iron-pages id="page"
+      selected="[[selected]]"
+      attr-for-selected="name"
+      fallback-selection="404"
+      role="main"
+    >
+
+      <x-page-view1
+        name="view1"
+      ></x-page-view1>
+
+      <x-page-view2
+        name="view2"
+      ></x-page-view2>
+
+      <x-page-apihit
+        name="hitme"
+        subroute="[[subroute]]"
+      ></x-page-apihit>
+
+      <x-page-login
+        name="login"
+      ></x-page-login>
+
+      <x-page-404
+        name="404"
+      ></x-page-404>
+
+    </iron-pages>
+
+  </template>
+
+  <script>
+(function() {
+
+  class MyRoutes extends Polymer.Element {
+
+    static get is() { return 'my-routes'; }
+
+    static get properties() {
+      return {
+        selected: {
+          type: String,
+          observer: '_pageChanged',
+        },
+
+        subroute: {
+          type: Object
+        }
+
+      };
+    }
+
+
+    _pageChanged(page) {
+      page = {
+
+        hitme: 'apihit'
+
+      }[page] || page;
+
+      // Load page import on demand. Show 404 page if fails
+      Polymer.importHref( this.resolveUrl(`fragments/x-page-${page}.html`),
+        () => {
+          var el = this.$.page.selectedItem,
+              cb = el.myRenderCallback;
+
+          POLYDUX.selectedPage = el;
+
+          Polymer.RenderStatus.afterNextRender(el, () => {
+            // eslint-disable-next-line no-console
+            console.info(page, el);
+
+            if(cb) { // myRenderCallback, we call it after navigation to and render of a page
+              cb.call(el, this, page);
+            }
+          });
+
+
+        },
+        () => this._showPage404(),
+        true // async option
+      );
+
+    }
+
+
+  }
+
+  window.customElements.define(MyRoutes.is, MyRoutes);
+
+})();
+
+  </script>
+</dom-module>

@@ -8,13 +8,13 @@
 <link rel="import" href="../bower_components/app-layout/app-toolbar/app-toolbar.html">
 <link rel="import" href="../bower_components/app-route/app-location.html">
 <link rel="import" href="../bower_components/app-route/app-route.html">
-<link rel="import" href="../bower_components/iron-pages/iron-pages.html">
 <link rel="import" href="../bower_components/iron-selector/iron-selector.html">
 <link rel="import" href="../bower_components/paper-icon-button/paper-icon-button.html">
 <link rel="import" href="../bower_components/paper-toast/paper-toast.html">
 <link rel="import" href="elements/my-icons.html">
 <link rel="import" href="elements/my-user.html">
 <link rel="import" href="elements/my-spinner.html">
+<link rel="import" href="my-routes.html">
 
 <dom-module id="my-app">
   <template>
@@ -95,36 +95,13 @@
           </app-toolbar>
         </app-header>
 
-        <iron-pages id="page"
+
+        <my-routes id="router"
           selected="[[page]]"
-          attr-for-selected="name"
-          fallback-selection="404"
-          role="main"
-        >
+          subroute="[[subroute]]"
+        ></my-routes>
 
 
-          <x-page-view1
-            name="view1"
-          ></x-page-view1>
-
-          <x-page-view2
-            name="view2"
-          ></x-page-view2>
-
-          <x-page-apihit
-            name="hitme"
-            subroute="[[subroute]]"
-          ></x-page-apihit>
-
-          <x-page-login
-            name="login"
-          ></x-page-login>
-
-          <x-page-404
-            name="404"
-          ></x-page-404>
-
-        </iron-pages>
       </app-header-layout>
     </app-drawer-layout>
 
@@ -153,8 +130,7 @@ document.addEventListener('WebComponentsReady', function() {
       return {
         page: {
           type: String,
-          reflectToAttribute: true,
-          observer: '_pageChanged',
+          reflectToAttribute: true
         },
 
         title: {
@@ -204,38 +180,6 @@ document.addEventListener('WebComponentsReady', function() {
       if (!this.$.drawer.persistent) {
         this.$.drawer.close();
       }
-    }
-
-    _pageChanged(page) {
-      page = {
-
-        hitme: 'apihit'
-
-      }[page] || page;
-
-      // Load page import on demand. Show 404 page if fails
-      Polymer.importHref( this.resolveUrl(`fragments/x-page-${page}.html`),
-        () => {
-          var el = this.$.page.selectedItem,
-              cb = el.myRenderCallback;
-
-          POLYDUX.selectedPage = el;
-
-            Polymer.RenderStatus.afterNextRender(el, () => {
-              // eslint-disable-next-line no-console
-              console.info(page, el);
-
-              if(cb) { // myRenderCallback, we call it after navigation to and render of a page
-                cb.call(el, this, page);
-              }
-            });
-
-
-        },
-        () => this._showPage404(),
-        true // async option
-      );
-
     }
 
     _showPage404() {
