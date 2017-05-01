@@ -4,7 +4,7 @@
 <dom-module id="my-routes">
   <template>
 
-    <iron-pages id="page"
+    <iron-pages id="pages"
       selected="[[selected]]"
       attr-for-selected="name"
       fallback-selection="404"
@@ -68,7 +68,7 @@
       // Load page import on demand. Show 404 page if fails
       Polymer.importHref( this.resolveUrl(`fragments/x-page-${page}.html`),
         () => {
-          var el = this.$.page.selectedItem,
+          var el = this.$.pages.selectedItem,
               cb = el.myRenderCallback;
 
           POLYDUX.selectedPage = el;
